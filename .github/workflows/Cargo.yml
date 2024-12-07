@@ -1,0 +1,70 @@
+
+name: Build and Cross-Compile Rust Binary
+
+on:
+  workflow_dispatch:
+    inputs:
+      SOURCE:
+        description: 'Source'
+        required: true
+        default: https://github.com/Adiix64/Compiler/
+      BRANCH:
+        description: 'Branch'
+        required: true
+        default: main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Clone the specific Git repository into a directory
+      - name: Clone repository
+        run: |
+          git clone ${{ github.event.inputs.SOURCE }} -b ${{ github.event.inputs.BRANCH }} ./rust
+
+      # Set up Rust environment
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+
+      # Add targets for cross-compilation
+      - name: Add targets for cross-compilation
+        run: |
+          rustup target add x86_64-unknown-linux-gnu
+          rustup target add aarch64-unknown-linux-gnu
+
+      # Install required linker for cross-compilation
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu
+
+      # Build the binary for x86_64
+      - name: Build for x86_64
+        run: |
+          cd rust
+          cargo build --release --target x86_64-unknown-linux-gnu
+
+      # Build the binary for aarch64
+      - name: Build for aarch64
+        run: |
+          cd rust
+          cargo build --release --target aarch64-unknown-linux-gnu
+
+      # Prepare binaries for upload
+      - name: Prepare binaries for upload
+        run: |
+          mkdir -p release-binaries
+          cp rust/target/x86_64-unknown-linux-gnu/release/* release-binaries/
+          cp rust/target/aarch64-unknown-linux-gnu/release/* release-binaries/
+
+      # Upload binaries as an artifact
+      - name: Upload binaries
+        uses: actions/upload-artifact@v3
+        with:
+          name: rust-release-binaries
+          path: release-binaries
