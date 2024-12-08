@@ -1,4 +1,3 @@
-
 name: Build and Cross-Compile Rust Binary
 
 on:
@@ -7,7 +6,7 @@ on:
       SOURCE:
         description: 'Source'
         required: true
-        default: https://github.com/Adiix64/Compiler/
+        default: https://github.com/Adiix64/Junk_1/
       BRANCH:
         description: 'Branch'
         required: true
@@ -41,19 +40,25 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc-aarch64-linux-gnu
+          sudo apt-get install -y gcc-aarch64-linux-gnu gcc-x86_64-linux-gnu
 
       # Build the binary for x86_64
       - name: Build for x86_64
         run: |
           cd rust
-          cargo build --release --target x86_64-unknown-linux-gnu
+          cargo build --release --target x86_64-unknown-linux-gnu || exit 1
 
       # Build the binary for aarch64
       - name: Build for aarch64
         run: |
           cd rust
-          cargo build --release --target aarch64-unknown-linux-gnu
+          cargo build --release --target aarch64-unknown-linux-gnu || exit 1
+
+      # Verify the built binaries
+      - name: List compiled binaries
+        run: |
+          ls rust/target/x86_64-unknown-linux-gnu/release/
+          ls rust/target/aarch64-unknown-linux-gnu/release/
 
       # Prepare binaries for upload
       - name: Prepare binaries for upload
