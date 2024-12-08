@@ -6,7 +6,7 @@ on:
       SOURCE:
         description: 'Source'
         required: true
-        default: https://github.com/Adiix64/Junk_1/
+        default: https://github.com/Adiix64/Junk_1
       BRANCH:
         description: 'Branch'
         required: true
@@ -40,7 +40,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc-aarch64-linux-gnu gcc-x86_64-linux-gnu
+          sudo apt-get install -y gcc-aarch64-linux-gnu gcc-multilib
 
       # Build the binary for x86_64
       - name: Build for x86_64
